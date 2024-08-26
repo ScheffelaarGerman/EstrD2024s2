@@ -79,13 +79,14 @@ negar :: Bool -> Bool
 negar True  = not True 
 negar False = not False
 --3..3.B--
+--3..3.B--
 implica :: Bool -> Bool -> Bool
-implica True  b = b
-implica False _ = False
+implica  False _ = True
+implica  _     b = b
 --3.3.C--
 yTambien :: Bool -> Bool -> Bool
-yTambien  True   b = b
 yTambien  False  _ = False
+yTambien   _     b = b
 --3.3.D--
 oBien :: Bool -> Bool -> Bool
 oBien True  _   = True
