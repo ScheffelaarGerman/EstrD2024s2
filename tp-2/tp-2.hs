@@ -1,5 +1,5 @@
 -----RECURSION SOBRE LISTAS------
---1.1--
+--1.1-- 
 sumatoria :: [Int]  -> Int
 sumatoria    []     =  0  
 sumatoria    (n:ns) =  n + sumatoria ns
@@ -67,7 +67,7 @@ agregar     (x:xs)  ys  =   x : agregar xs ys
 --1.13--
 reversa :: [a]    -> [a]
 reversa    []     =  []
-reversa    (x:xs) =  reversa xs ++ [x]
+reversa    (x:xs) =   x : reversa xs
 
 --1.14--
 zipMaximos :: [Int]  -> [Int] -> [Int]
@@ -101,16 +101,22 @@ repetir    n      x =  x: repetir (n-1) x
 
 --2.4--
 losPrimeros :: Int ->  [a]    -> [a]
-losPrimeros    0       []     =  []
 losPrimeros    _       []     =  []
-losPrimeros    n       (x:xs) = x:losPrimeros (n-1) xs
+losPrimeros    0       [xs]   =  [xs]
+losPrimeros    n       (x:xs) =  if  (n ==1 )
+                                    then  [x]
+                                    else x : losPrimeros (n-1) xs
 
 --2.5--
 
-sinLosPrimeros ::Int ->  [a]    -> [a]
-sinLosPrimeros     0     []     = []
-sinLosPrimeros     _     []     = []
-sinLosPrimeros     n     (x:xs) = sinLosPrimeros (n-1) xs 
+sinLosPrimeros ::  Int ->  [a]       -> [a]
+sinLosPrimeros     _       []         =  []
+sinLosPrimeros     0       [xs]       =  [xs]
+sinLosPrimeros     n       (x:xs)     = if (n==1)
+                                        then xs
+                                        else sinLosPrimeros (n-1) xs
+
+
 
 
 ------REGISTROS------
@@ -132,16 +138,15 @@ edad :: Persona -> Int
 edad    (P _ e) = e
 
 --
-promedioEdad :: [Persona] -> (Int, Int)
+promedioEdad :: [Persona] -> Int
+--PORECONDICION : lista de personas no puede ser una lista vacia.
 promedioEdad    []        =   error " La lista no puede ser vacia."
-promedioEdad    ps        = divisionYResto  (sumatoria(edadesDe ps))  (longitud ps) 
+promedioEdad    ps        = div (totalDeEdades ps)  (longitud ps) 
 
-edadesDe :: [Persona] -> [Int]
-edadesDe    []        =  []
-edadesDe   (p:ps)    = edad p : edadesDe ps 
+totalDeEdades :: [Persona] -> Int
+totalDeEdades    []        = 0
+totalDeEdades    (p:ps)    =  edad p +  totalDeEdades ps
 
-divisionYResto :: Int -> Int -> (Int, Int)
-divisionYResto n m = (div n m, (mod n m))
 
 --
 elMasViejo :: [Persona] -> Persona
@@ -165,12 +170,13 @@ data Entrenador = ConsEntrenador String [Pokemon]
 pokemonFuego = ConsPokemon Fuego 100
 pokemonPlanta = ConsPokemon Planta 68
 pokemonAgua = ConsPokemon Agua 75
-pokemonAgua1 = ConsPokemon Agua 87
+pokemonFuego1 = ConsPokemon Fuego 87
 
-entrenador1 = ConsEntrenador "entrenador1" [pokemonAgua]
-entrenador2 = ConsEntrenador "entrenador2" [ pokemonFuego]
+entrenador1 = ConsEntrenador "entrenador1" [pokemonFuego]
+entrenador2 = ConsEntrenador "entrenador2" [ pokemonAgua]
 entrenador3 = ConsEntrenador "entrenador3" [pokemonFuego, pokemonPlanta, pokemonAgua]
 
+listaP = [pokemonFuego, pokemonFuego1]
 --
 cantPokemon :: Entrenador             -> Int
 cantPokemon    (ConsEntrenador _ pks) = longitud pks
@@ -195,21 +201,23 @@ sonIgualTipo    Planta           Planta         = True
 sonIgualTipo    _                _              = False                
 
 --
-cuantosDeTipo_De_LeGanaTodosLosDe_ :: TipoDePokemon -> Entrenador            -> Entrenador         -> Int
+cuantosDeTipo_De_LeGanaTodosLosDe_ :: TipoDePokemon -> Entrenador            -> Entrenador              -> Int
 cuantosDeTipo_De_LeGanaTodosLosDe_    tp               (ConsEntrenador _ pks1) (ConsEntrenador _ pks2)  = cantidadDeTipo_De_QueGanaA_ tp pks1 pks2
 
 cantidadDeTipo_De_QueGanaA_ :: TipoDePokemon -> [Pokemon] -> [Pokemon] -> Int
-cantidadDeTipo_De_QueGanaA_    _              []            _        = 0
-cantidadDeTipo_De_QueGanaA_    tp             (p:pks1)     pks2  = unoSiCeroSino (sonIgualTipo tp (tipoDe p) && leGanaATodos p pks2) + cantidadDeTipo_De_QueGanaA_  tp pks1 pks2
+cantidadDeTipo_De_QueGanaA_    _                []            _         = 0
+cantidadDeTipo_De_QueGanaA_    tp               (p:pks1)     pks2       = unoSi (sonIgualTipo tp (tipoDe p) && leGanaATodos p pks2) + cantidadDeTipo_De_QueGanaA_  tp pks1 pks2
 
-unoSiCeroSino :: Bool -> Int
-unoSiCeroSino    True  = 1
-unoSiCeroSino    False = 0
+unoSi:: Bool -> Int
+unoSi   True  = 1
+unoSi   False = 0
 
 leGanaATodos :: Pokemon ->  [Pokemon] -> Bool
-leGanaATodos    _           []         =  False
-leGanaATodos    pok         [p2]       = superaA (tipoDe pok) (tipoDe p2)
-leGanaATodos    pok         (p2:pks2)     = superaA (tipoDe pok) (tipoDe p2) && leGanaATodos pok pks2
+leGanaATodos    _           []         =  True
+leGanaATodos    pok         (p:ps)     =  leGanaA pok p  && leGanaATodos pok  ps   
+
+leGanaA :: Pokemon -> Pokemon -> Bool
+leGanaA    pok1       pok2    = superaA (tipoDe pok1) (tipoDe pok2)
 
 superaA :: TipoDePokemon -> TipoDePokemon -> Bool
 superaA     Agua             Fuego         = True  
@@ -231,10 +239,12 @@ data Seniority = Junior | SemiSenior | Senior
     deriving Show
 data Proyecto  = ConsProyecto String
     deriving Show
-data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
+data Rol =   Developer Seniority Proyecto 
+           | Management Seniority Proyecto
     deriving Show
 data Empresa = ConsEmpresa [Rol]
     deriving Show
+
 
 empresa1= ConsEmpresa [empleado1, empleado2, empleado3, empleado6,empleado7, empleado8]
 empresa2= ConsEmpresa [empleado4, empleado5, empleado6, empleado10, empleado11, empleado12]
@@ -257,90 +267,101 @@ empleado9 = Developer  Senior proyecto3
 empleado10 = Management Senior proyecto4
 empleado11 = Developer  Junior proyecto4
 empleado12 = Developer  SemiSenior proyecto4
+
 --
-proyectos :: Empresa -> [Proyecto]
-proyectos    (ConsEmpresa rs) = proyectosDe rs
+proyectosDeE :: Empresa -> [Proyecto]
+proyectosDeE    (ConsEmpresa rs) = proyectosDeRs rs
 
-proyectosDe :: [Rol]  -> [Proyecto]
-proyectosDe    []     = []
-proyectosDe    (r:rs) = singularSi (proyecto r) (not (elProyectoEstaEnRoles (proyecto r) rs))  ++  proyectosDe rs 
-
-singularSi :: p -> Bool  -> [p]
-singularSi    _    False  = []
-singularSi    p    True  = p:[]
-
+proyectosDeRs :: [Rol]  -> [Proyecto]
+proyectosDeRs    []     = []
+proyectosDeRs    (r:rs)  =   sinRepeticionesDeP (proyecto r : proyectosDeRs rs)
 
 proyecto :: Rol             -> Proyecto
 proyecto   (Developer _ p)  = p 
 proyecto   (Management _ p) = p 
 
-elProyectoEstaEnRoles :: Proyecto-> [Rol]  -> Bool
-elProyectoEstaEnRoles    _          []     =  False
-elProyectoEstaEnRoles    p          (r:rs) = sonIgualesProy p (proyecto r)   || elProyectoEstaEnRoles p rs  
+sinRepeticionesDeP::   [Proyecto] -> [Proyecto] 
+sinRepeticionesDeP           []     = []
+sinRepeticionesDeP           (p:ps) = if ( estaEn p ps)
+                                       then sinRepeticionesDeP ps
+                                       else p: sinRepeticionesDeP ps  
 
-sonIgualesProy:: Proyecto          -> Proyecto       -> Bool
-sonIgualesProy   (ConsProyecto p1) (ConsProyecto p2) = p1 == p2
-sonIgualesProy   _                 _                 = False
+estaEn :: Proyecto -> [Proyecto] -> Bool
+estaEn            p   []         = False
+estaEn            p1  (p2:ps)    = if (sonIgualesP p1 p2)
+                                    then True
+                                    else estaEn p1 ps
 
+sonIgualesP :: Proyecto         -> Proyecto          -> Bool
+sonIgualesP   (ConsProyecto p1)   (ConsProyecto p2)  = p1 == p2
 
----
+--
 losDevSenior :: Empresa        -> [Proyecto] -> Int
-losDevSenior     (ConsEmpresa rs)  ps         = cantDeSeniorConProyectos rs ps 
+losDevSenior    (ConsEmpresa rs)  ps         = cantDeDevSeniorDe_EnProyectos_ rs ps 
 
+cantDeDevSeniorDe_EnProyectos_  :: [Rol] -> [Proyecto] -> Int
+cantDeDevSeniorDe_EnProyectos_     []        _          = 0
+cantDeDevSeniorDe_EnProyectos_     (r:rs)    ps         = unoSi(esDevSenior r && (proyeEstaEnProyes (proyecto r) ps))  + cantDeDevSeniorDe_EnProyectos_   rs ps
 
-cantDeSeniorConProyectos :: [Rol] -> [Proyecto] -> Int
-cantDeSeniorConProyectos    []     _               = 0
-cantDeSeniorConProyectos     (r:rs)   ps          = unoSiCeroSino(esSeniorityDev Senior r  && proyeEstaEnProyes (proyecto r) ps)  + cantDeSeniorConProyectos rs ps
+esDevSenior :: Rol -> Bool
+esDevSenior    r   =   esDev r && esSenior (seniorityDelRol r)
+
+esDev :: Rol             -> Bool
+esDev    (Developer _ _) = True
+esDev    _               = False
+
+esSenior :: Seniority -> Bool
+esSenior    Senior    = True
+esSenior    _         = False
+
+seniorityDelRol :: Rol            -> Seniority
+seniorityDelRol    (Developer s _) = s
 
 proyeEstaEnProyes :: Proyecto -> [Proyecto] -> Bool
-proyeEstaEnProyes _ [] = False
-proyeEstaEnProyes pro (p:ps) = sonIgualesProy pro p || proyeEstaEnProyes pro ps
-           
-esSeniorityDev :: Seniority -> Rol              -> Bool
-esSeniorityDev    sen          (Developer se _) = sonDeIgualSeniority sen se   
-esSeniorityDev    _            _                = False
-
-sonDeIgualSeniority :: Seniority -> Seniority   -> Bool
-sonDeIgualSeniority    Junior       Junior      = True
-sonDeIgualSeniority    SemiSenior   SemiSenior  = True
-sonDeIgualSeniority    Senior       Senior      = True
-sonDeIgualSeniority    _            _           = False
+proyeEstaEnProyes    _           []        = False
+proyeEstaEnProyes    pro         (p:ps)    = sonIgualesP pro p || proyeEstaEnProyes  pro ps
+--
 
 --
-cantQueTrabajanEn :: [Proyecto] -> Empresa        -> Int
-cantQueTrabajanEn    ps          (ConsEmpresa rs) = cantDeTrabEnProyes ps rs
+cantQueTrabajanEn :: [Proyecto] -> Empresa             -> Int
+cantQueTrabajanEn     (p:ps)       (ConsEmpresa rs)  =  cantDeEmplQueTrabajaEn ps rs
 
-cantDeTrabEnProyes :: [Proyecto] -> [Rol] -> Int
-cantDeTrabEnProyes      _            []    = 0
-cantDeTrabEnProyes      ps          (r:rs) = unoSiCeroSino(proyeEstaEnProyes (proyecto r) ps) + cantDeTrabEnProyes ps rs
-
+cantDeEmplQueTrabajaEn :: [Proyecto] -> [Rol] -> Int
+cantDeEmplQueTrabajaEn     _            []    = 0  
+cantDeEmplQueTrabajaEn    (p:ps)        rs    = unoSi (proyeEstaEnProyes  p (proyectosDeRs rs)) + cantDeEmplQueTrabajaEn ps rs
 --
-asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-asignadosPorProyecto (ConsEmpresa rs) = asignarPorProyectos (proyectosDe rs) rs 
+asignadosPorProyecto :: Empresa          -> [(Proyecto, Int)]
+asignadosPorProyecto    (ConsEmpresa rs) =  asignarPorProyectos (sinRepeticionesDeP(proyectosDeRs rs)) rs
 
-asignarPorProyectos :: [Proyecto] -> [Rol] -> [(Proyecto, Int)]
-asignarPorProyectos [] _ = []
-asignarPorProyectos (p:ps) rs = [(p, cantEmpleadosEnProyecto rs p)] ++ asignarPorProyectos ps rs
+asignarPorProyectos :: [Proyecto] -> [Rol] ->[(Proyecto, Int)]
+asignarPorProyectos    []             _    = []
+asignarPorProyectos    (p:ps)         rs   = ( p, cantDeEmpEnProyecto rs p) : asignarPorProyectos  ps rs
 
-cantEmpleadosEnProyecto :: [Rol] -> Proyecto -> Int
-cantEmpleadosEnProyecto [] _ = 0
-cantEmpleadosEnProyecto (r:rs) p = unoSiCeroSino(sonIgualesProy (proyecto r) p) + cantEmpleadosEnProyecto rs p
-{-- PRESETAR MUCHA ANTENCION doble pattern maching, miedo al booleano,patter maching anidado,  SIMEPRE EN SUBTAREA
-data  Factura = Medialuna | Churro
-data  Pedido = Bandeja
-               |Simple Factura Int
-               |Combinado Factura Int Factura Int
-agregarfac :: Pedido ->               Factura    -> Pedido
-agregarfac    Bandeja                  x         = Simple  x 1
-agregarfac    (Simple f n)             x         = if esMismaFactura f x
-                                                    then Simple      f    n+1
-                                                    else Combinado   f n  x 1
+cantDeEmpEnProyecto :: [Rol] -> Proyecto -> Int
+cantDeEmpEnProyecto    []        _       =  0
+cantDeEmpEnProyecto    (r:rs)    p       = unoSi (sonIgualesP  (elProyectoDelRol r) p ) + cantDeEmpEnProyecto   rs p 
 
-agregarfac   (Combinado f1 n1 f2 n2)   x         =  if esMismaFactura f1 x
-                                                     then Combinado f1 n1+1 f2  n2
-                                                     else Combinado f1 n1   f2  n2+1
-esMismaFactura :: Factura -> Factura -> Bool
-esMismaFactura    Medialuna Medialuna = True
-esMismaFactura    Churro   Churro     = True
-esMismaFactura    _         _         = False     
---}
+elProyectoDelRol :: Rol -> Proyecto
+elProyectoDelRol   (Developer  _ p ) = p
+elProyectoDelRol   (Management _  p)  = p
+
+
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
