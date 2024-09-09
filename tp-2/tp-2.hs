@@ -330,12 +330,13 @@ cantDeEmplQueTrabajaEn :: [Proyecto] -> [Rol] -> Int
 cantDeEmplQueTrabajaEn     _            []    = 0  
 cantDeEmplQueTrabajaEn    (p:ps)        rs    = unoSi (proyeEstaEnProyes  p (proyectosDeRs rs)) + cantDeEmplQueTrabajaEn ps rs
 --
-asignadosPorProyecto :: Empresa          -> [(Proyecto, Int)]
-asignadosPorProyecto    (ConsEmpresa rs) =  asignarPorProyectos (sinRepeticionesDeP(proyectosDeRs rs)) rs
+asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
+asignadosPorProyecto e          = zip (proyectosDeE e) (cantPorProyecto (proyectosDeE e) (rolesDeE e))
 
-asignarPorProyectos :: [Proyecto] -> [Rol] ->[(Proyecto, Int)]
-asignarPorProyectos    []             _    = []
-asignarPorProyectos    (p:ps)         rs   = ( p, cantDeEmpEnProyecto rs p) : asignarPorProyectos  ps rs
+cantPorProyecto :: [Proyecto] -> [Rol] -> [Int]
+cantPorProyecto    []             _    = []
+cantPorProyecto    (p:ps)        []    = []
+cantPorProyecto    (p:ps)        rs    = cantDeEmpEnProyecto rs p : cantPorProyecto ps rs
 
 cantDeEmpEnProyecto :: [Rol] -> Proyecto -> Int
 cantDeEmpEnProyecto    []        _       =  0
@@ -345,6 +346,8 @@ elProyectoDelRol :: Rol -> Proyecto
 elProyectoDelRol   (Developer  _ p ) = p
 elProyectoDelRol   (Management _  p)  = p
 
+rolesDeE ::  Empresa -> [Rol]
+rolesDeE      (ConsEmpresa rls) = rls
 
 ----
 
