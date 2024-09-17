@@ -52,6 +52,7 @@ camino6 = Cofre [Cacharro, Tesoro](Cofre [Tesoro] (Cofre [Tesoro, Tesoro] Fin))
 hayTesoro :: Camino          -> Bool 
 hayTesoro    Fin             = False
 hayTesoro    (Nada c)        = hayTesoro c
+<<<<<<< HEAD
 hayTesoro    (Cofre objts c) = existeAlMenosUnTesoroEn objts || hayTesoro c 
 
 existeAlMenosUnTesoroEn :: [Objeto]  -> Bool
@@ -61,12 +62,27 @@ existeAlMenosUnTesoroEn    (o : objs) = esTesoro o || existeAlMenosUnTesoroEn ob
 esTesoro :: Objeto -> Bool
 esTesoro    Tesoro = True
 esTesoro    _      = False
+=======
+hayTesoro    (Cofre objts c) = existeTesoroEn objts || hayTesoro c 
+
+existeTesoroEn:: [Objeto] -> Bool
+existeTesoroEn   []       =  False
+existeTesoroEn   (o: os)  =  sonIguales Tesoro o || existeTesoroEn os
+
+sonIguales :: Objeto -> Objeto -> Bool
+sonIguales    Tesoro    Tesoro = True
+sonIguales    _         _      = False
+>>>>>>> 10636e91f52d5f128fceb584ed8d683673352392
 --
 --PRECONDICION: Debe haber al menos un tesoro.
 pasosHastaTesoro :: Camino              -> Int
 pasosHastaTesoro    Fin                 =  error " Debe existir al menos un tesoro"
 pasosHastaTesoro    (Nada c)             = 1 + pasosHastaTesoro c
+<<<<<<< HEAD
 pasosHastaTesoro    (Cofre objts c) = if (existeAlMenosUnTesoroEn objts)
+=======
+pasosHastaTesoro     (Cofre objts c) = if (existeTesoroEn objts)
+>>>>>>> 10636e91f52d5f128fceb584ed8d683673352392
                                         then 0
                                         else 1 + pasosHastaTesoro c
 --
@@ -77,6 +93,7 @@ hayTesoroEn    n      (Nada c)         =  hayTesoroEn (n-1) c
 hayTesoroEn    n      (Cofre  objts c) =  hayTesoroEn (n-1) c
 
 hayTesoroAca :: Camino          -> Bool
+<<<<<<< HEAD
 hayTesoroAca    (Cofre objts c) = existeAlMenosUnTesoroEn objts
 hayTesoroAca    _               = False
 ---
@@ -115,6 +132,32 @@ cantDeTesorosEn   (ob: obs)  =  unoSi(esTesoro ob) + cantDeTesorosEn obs
                
 --
 
+=======
+hayTesoroAca    (Cofre objts c) = existeTesoroEn objts
+hayTesoroAca    _               = False
+---
+--alMenosNTesoros :: Int  ->Camino        -> Bool
+alMenosNTesoros    _      Fin            = False
+alMenosNTesoros    n      (Nada c)       = alMenosNTesoros n c
+alMenosNTesoros    n      (Cofre objs c) = cantTesorosEnCofre objs >= n || alMenosNTesoros (n - cantTesorosEnCofre objs) c 
+ 
+cantTesorosEnCofre :: [Objeto] -> Int
+cantTesorosEnCofre    []       =  0
+cantTesorosEnCofre    (ob: obs)  =  unoSi(sonIguales Tesoro ob) + cantTesorosEnCofre obs
+--
+
+cantTesorosEntre :: Int -> Int -> Camino -> Int
+cantTesorosEntre    n1     n2     c      = cantDeTesorosHasta (n2-1)  c - cantDeTesorosHasta n1 c
+
+cantDeTesorosHasta :: Int ->  Camino -> Int
+cantDeTesorosHasta    0       _               = 0
+cantDeTesorosHasta    _       Fin             = 0
+cantDeTesorosHasta    n       (Nada c)        = cantDeTesorosHasta (n-1) c
+cantDeTesorosHasta    n       (Cofre objts c) =  cantTesorosEnCofre objts  + cantDeTesorosHasta (n-1)  c                      
+--
+
+
+>>>>>>> 10636e91f52d5f128fceb584ed8d683673352392
 ------TIPOS ARBOREOS------
 --2.1 ARBOLES BINARIOS ---
 
@@ -241,6 +284,7 @@ expresion3 = Sum expresion1 expresion2
 expresion4 = Prod expresion1 expresion2
 expresion5 = Neg (expresion1)
 --2.1
+<<<<<<< HEAD
 eval :: ExpA                -> Int
 eval    (Valor  n)          =   n
 eval    (Sum    e1  e2)     =   eval e1   + eval    e2 
@@ -276,3 +320,33 @@ simplificarNegativo     e           =   (Neg e)
 
 
 
+=======
+eval ::  ExpA            -> Int
+eval    (Valor n)        = n
+eval    (Sum  exp1 exp2) = eval exp1 + eval exp2
+eval    (Prod exp1 exp2) = eval exp1 * eval exp2
+eval    (Neg  exp1)      = -(eval exp1)
+
+--2.2
+simplificar :: ExpA -> ExpA
+simplificar (Valor n) = Valor n
+simplificar (Sum e1 e2) = simplificacionSum (simplificar e1) (simplificar e2)
+simplificar (Prod e1 e2) = simplificaProd (simplificar e1) (simplificar e2)
+simplificar (Neg e1) = simplificaNeg (simplificar e1)
+
+simplificaNeg :: ExpA -> ExpA
+simplificaNeg (Neg e1) = e1
+simplificaNeg e1 = (Neg e1)
+
+simplificacionSum :: ExpA -> ExpA -> ExpA
+simplificacionSum e1 (Valor 0) = e1
+simplificacionSum (Valor 0) e2 = e2
+simplificacionSum e1 e2 = Sum e1 e2
+
+simplificaProd :: ExpA -> ExpA -> ExpA
+simplificaProd e1 (Valor 0) = (Valor 0)
+simplificaProd (Valor 0) e2 = (Valor 0)
+simplificaProd e1 (Valor 1) = e1
+simplificaProd (Valor 1) e2 = e2
+simplificaProd e1 e2 = Prod e1 e2
+>>>>>>> 10636e91f52d5f128fceb584ed8d683673352392
