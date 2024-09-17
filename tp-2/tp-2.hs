@@ -56,7 +56,7 @@ lasDeMayorLongitud    n      (x:xs) =  if (longitud x > n )
 
 --1.11--
 agregarAlFinal :: [a] -> a -> [a]
-agregarAlFInal    []     e =  [e]
+agregarAlFinal    []     e =  [e]
 agregarAlFinal    (x:xs) e =   x : agregarAlFinal xs e
 
 --1.12--
@@ -67,7 +67,7 @@ agregar     (x:xs)  ys  =   x : agregar xs ys
 --1.13--
 reversa :: [a]    -> [a]
 reversa    []     =  []
-reversa    (x:xs) =   x : reversa xs
+reversa    (x:xs) =    agregarAlFinal (reversa xs) x
 
 --1.14--
 zipMaximos :: [Int]  -> [Int] -> [Int]
@@ -331,23 +331,35 @@ cantDeEmplQueTrabajaEn     _            []    = 0
 cantDeEmplQueTrabajaEn    (p:ps)        rs    = unoSi (proyeEstaEnProyes  p (proyectosDeRs rs)) + cantDeEmplQueTrabajaEn ps rs
 --
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-asignadosPorProyecto e          = zip (proyectosDeE e) (cantPorProyecto (proyectosDeE e) (rolesDeE e))
+asignadosPorProyecto     e      =  contarAsignados (rolesDeEmp e) []
 
-cantPorProyecto :: [Proyecto] -> [Rol] -> [Int]
-cantPorProyecto    []             _    = []
-cantPorProyecto    (p:ps)        []    = []
-cantPorProyecto    (p:ps)        rs    = cantDeEmpEnProyecto rs p : cantPorProyecto ps rs
+rolesDeEmp ::  Empresa -> [Rol]
+rolesDeEmp     (ConsEmpresa rls) = rls
 
-cantDeEmpEnProyecto :: [Rol] -> Proyecto -> Int
-cantDeEmpEnProyecto    []        _       =  0
-cantDeEmpEnProyecto    (r:rs)    p       = unoSi (sonIgualesP  (elProyectoDelRol r) p ) + cantDeEmpEnProyecto   rs p 
+contarAsignados ::  [Rol]   ->  [(Proyecto, Int)] -> [(Proyecto, Int)]
+contarAsignados     [ ]             asignados     =     asignados
+contarAsignados     (r:rs)          asignados     =   contarAsignados rs (contadorPorProyecto (proyecto r) asignados)
 
-elProyectoDelRol :: Rol -> Proyecto
-elProyectoDelRol   (Developer  _ p ) = p
-elProyectoDelRol   (Management _  p)  = p
+contadorPorProyecto ::  Proyecto    ->  [(Proyecto, Int)]   ->  [(Proyecto, Int)]
+contadorPorProyecto        p                  [ ]           =       [(p, 1)]
+contadorPorProyecto        p              ((p2, n):ps)      =   if (sonIgualesP p p2)
+                                                                then (p2, n + 1) : ps
+                                                                else (p2, n) : contadorPorProyecto p ps
 
-rolesDeE ::  Empresa -> [Rol]
-rolesDeE      (ConsEmpresa rls) = rls
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
+
+
+
 
 ----
 
